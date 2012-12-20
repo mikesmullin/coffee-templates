@@ -1,0 +1,38 @@
+{
+  "name": "coffee-templates",
+  "version": "0.0.2",
+  "description": "Fastest Minimalist CoffeeScript/JavaScript CoffeeCup/Handlebars/Mustache template engine.",
+  "main": "js/coffee-templates.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "pretest": "coffee --bare -o js coffee/coffee-templates.coffee",
+    "test": "mocha --reporter spec --bail --ui bdd --colors --compilers coffee:coffee-script --require coffee-script test/test.coffee"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikesmullin/coffee-templates.git"
+  },
+  "keywords": [
+    "html",
+    "html5",
+    "markup",
+    "template",
+    "coffeecup",
+    "mustache",
+    "handlebars",
+    "noengine",
+    "fast",
+    "fastest",
+    "browser",
+    "nodejs",
+    "engine"
+  ],
+  "author": "Mike Smullin <mike@smullindesign.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "chai": "~1.4.0"
+  }
+}
