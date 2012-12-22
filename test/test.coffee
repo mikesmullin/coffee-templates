@@ -164,7 +164,7 @@ describe 'CoffeeTemplates', ->
           title "#{@title or 'Untitled'} | A completely plausible website"
           meta(name: 'description', content: @description) if @description?
           link rel: 'stylesheet', href: '/css/app.css'
-    expecting "<!doctype html><html>\n  <head>\n    <meta charset=\"utf-8\"/>\n    <title>Untitled | A completely plausible website</title>\n    <link rel=\"stylesheet\" href=\"/css/app.css\"/>\n  </head>\n</html>\n"
+    expecting "<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\"/>\n    <title>Untitled | A completely plausible website</title>\n    <link rel=\"stylesheet\" href=\"/css/app.css\"/>\n  </head>\n</html>\n"
 
   it 'renders selector-style #id and .class names', ->
     template = ->

@@ -8,19 +8,24 @@
   y=(v)->(typeof v)[0]
 
   # constructor
-  C = (o, templates)-> # options, and templates
-    @o = o or {}
-    @templates = templates or {}
+  C = (o)-> # options
+    o = o or {}
+    o.indent = (o.format or '') and (o.indent or '  ')
+    o.newline = (o.format or '') and (o.newline or "\n")
+    o.globals = o.globals or {} # global scope of coffee template function
+    # only non-false need be declared
+    #o.escape = o.escape or false # automatically escape special characters
+    #o.special = o.special or {} # special characters to be escaped
+    #o.format = o.format or false # add whitespace to output
+    #o.handlebars = o.handlebars or false # render {{#block}}{{/block}} instead of {{block}}{{/block}}
+
     # html5-only by default; add older crap via configuration for special cases
-    @o.doctype = @o.doctype or { '5': '<!doctype html>' }
-    @o.block = 'a abbr address article aside audio b bdi bdo blockquote body button canvas caption cite code colgroup command data datagrid datalist dd del details dfn div dl dt em embed eventsource fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup html i iframe ins kbd keygen label legend li mark map menu meter nav noscript object ol optgroup option output p pre progress q ruby rp rt s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split ' '
-    @o.atomic = 'area base br col hr img input link meta param'.split ' '
-    #@o.escape = @o.escape or false # only non-false need be declared
-    @o.special = '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    #@o.format = @o.format or false # only non-false need be declared
-    #@o.handlebars = @o.handlebars or false # uses {{#block}}{{/block}} syntax instead of default {{block}}{{/block}}
-    @o.indent = (@o.format or '') and (@o.indent or '  ')
-    @o.newline = (@o.format or '') and (@o.newline or "\n")
+    o.doctype = o.doctype or { '5': '<!doctype html>' }
+    o.block = o.block or 'a abbr address article aside audio b bdi bdo blockquote body button canvas caption cite code colgroup command data datagrid datalist dd del details dfn div dl dt em embed eventsource fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup html i iframe ins kbd keygen label legend li mark map menu meter nav noscript object ol optgroup option output p pre progress q ruby rp rt s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split ' '
+    o.atomic = o.atomic or 'area base br col hr img input link meta param'.split ' '
+    o.special = o.special or { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
+    @o = o
+    return
 
   # main render function
   # formerly mini-coffeecup
@@ -29,61 +34,61 @@
     l=0  # indentation level
     o=@o # options (without requirement of `this.` context)
     o.indent=((x)->->(new Array(l)).join x)(o.indent) # indentation function
-    g = # passed to template function in global scope
-      tag: (a,b,c,d)->->
-        # a # prefix
-        # b # attributes array join function
-        # c # after attributes
-        # d # suffix
-        e=arguments
-        f={} # attributes
-        # h # content (string, or function that returns a string)
-        l++ # indentation level
-        s='' # interface signature
-        # x # interation integer
-        for x of e
-          s+=y e[x] # (string, object, function) == 'sof'
-        if s is 'sof' or s is 'sos' or s is 'so' or s is 'sf' or s is 'ss'
-          # convert string to attributes object
-          e[0].replace /([#.][\w\d-_]+)/g, (m) ->
-            `var k='class'`
-            (m[0] is '.') and f[k] = (f[k] or '') + (if f[k] then ' ' else '') + m.substr 1
-            (m[0] is '#') and f.id = m.substr 1
-            return
-        (s is 'of' or s is 'os' or s is 'o') and f = e[0]
-        (s is 'f' or s is 's') and h = e[0]
-        if s is 'sof' or s is 'sos' or s is 'so'
-          for x of e[1]
-            f[x] = e[1][x]
-          h = e[2]
-        (s is 'of' or s is 'os' or s is 'sf' or s is 'ss') and h = e[1]
-        f = if y(b) is 'f' then b f else '' # compile attributes object with given attributes join function
+    g=o.globals # globals abbreviated
+    g.tag=(a,b,c,d)->->
+      # a # prefix
+      # b # attributes array join function
+      # c # after attributes
+      # d # suffix
+      e=arguments
+      f={} # attributes
+      # h # content (string, or function that returns a string)
+      l++ # indentation level
+      s='' # interface signature
+      # x # interation integer
+      for x of e
+        s+=y e[x] # (string, object, function) == 'sof'
+      if s is 'sof' or s is 'sos' or s is 'so' or s is 'sf' or s is 'ss'
+        # convert string to attributes object
+        e[0].replace /([#.][\w\d-_]+)/g, (m) ->
+          `var k='class'`
+          (m[0] is '.') and f[k] = (f[k] or '') + (if f[k] then ' ' else '') + m.substr 1
+          (m[0] is '#') and f.id = m.substr 1
+          return
+      (s is 'of' or s is 'os' or s is 'o') and f = e[0]
+      (s is 'f' or s is 's') and h = e[0]
+      if s is 'sof' or s is 'sos' or s is 'so'
+        for x of e[1]
+          f[x] = e[1][x]
+        h = e[2]
+      (s is 'of' or s is 'os' or s is 'sf' or s is 'ss') and h = e[1]
+      f = if y(b) is 'f' then b f else '' # compile attributes object with given attributes join function
 
-        if y(h) is 'f'
-          # this += is unexpectedly magical:
-          # it stores the value of t before it evaluates the closure,
-          # inside the closure, t is reset to '',
-          # but then when the function returns a string,
-          # its concatenated back onto the original t!
-          # string concatenation is perhaps one of the few
-          # cases where i can get away with this...
-          t+=(->
-            t = ''
-            h.call i
-            t = o.newline+t+o.indent() if t isnt ''
-            t = o.indent()+a+f+c+t+d+o.newline
-          )()
-        else
-          t += o.indent()+a+f+c+(if y(h) is 'u' then '' else if o.escape then g.h(h) else h)+d+o.newline
-        l--
-      block: (s,f) -> g.tag('{{'+(if o.handlebars then '#' else '')+s, null, '}}', '{{/'+(s.split(`/ +/`)[0])+'}}')(f)
-      coffeescript: (f) -> g.script (''+f).replace(/^function \(\) ?{\s*/,'').replace(/\s*}$/,'')
-      doctype: (v) -> t = o.doctype[v or 5] + t
-      comment: (s,f) -> g.tag('<!--'+s, null, '', '-->')(f)
-      ie: (s,f) -> g.tag('<!--[if '+s+']>', null, '', '<![endif]-->')(f)
-      h: (s) -> (''+s).replace /[&<>"']/g, (c) -> o.special[c] or c # escape special characters
-      text: (s) -> t += if o.escape then g.h(s) else s
-      literal: (s) -> t += s
+      if y(h) is 'f'
+        # this += is unexpectedly magical:
+        # it stores the value of t before it evaluates the closure,
+        # inside the closure, t is reset to '',
+        # but then when the function returns a string,
+        # its concatenated back onto the original t!
+        # string concatenation is perhaps one of the few
+        # cases where i can get away with this...
+        t+=(->
+          t = ''
+          h.call i
+          t = o.newline+t+o.indent() if t isnt ''
+          t = o.indent()+a+f+c+t+d+o.newline
+        )()
+      else
+        t += o.indent()+a+f+c+(if y(h) is 'u' then '' else if o.escape then g.h(h) else h)+d+o.newline
+      l--
+    g.block = (s,f) -> g.tag('{{'+(if o.handlebars then '#' else '')+s, null, '}}', '{{/'+(s.split(`/ +/`)[0])+'}}')(f)
+    g.h = (s) -> (''+s).replace /[&<>"']/g, (c) -> o.special[c] or c # escape special characters
+    g.text = (s) -> t += if o.escape then g.h(s) else s
+    g.literal = (s) -> t += s
+    g.coffeescript = (f) -> g.script (''+f).replace(/^function \(\) ?{\s*/,'').replace(/\s*}$/,'')
+    g.doctype = (v) -> t = o.doctype[v or 5] + o.newline + t
+    g.comment = (s,f) -> g.tag('<!--'+s, null, '', '-->')(f)
+    g.ie = (s,f) -> g.tag('<!--[if '+s+']>', null, '', '<![endif]-->')(f)
     atts = (a) ->
       z = ''
       for k of a
@@ -93,7 +98,7 @@
       g[o.block[x]] = g.tag '<'+o.block[x], atts, '>', '</'+o.block[x]+'>'
     for x of o.atomic
       g[o.atomic[x]] = g.tag '<'+o.atomic[x], atts, '/>', ''
-    (Function 'g', '_i', 'with(g){('+tf+').call(_i)}')(g, i) # TODO: with(){().call()} may do just as well
+    (Function 'g', '_i', 'with(g){('+tf+').call(_i)}')(g, i)
     return t
 
   C.engine = "var o='',w=function(f,a){o='';f.apply(i, a);return o}"

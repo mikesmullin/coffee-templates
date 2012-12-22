@@ -10,23 +10,24 @@
   y = function(v) {
     return (typeof v)[0];
   };
-  C = function(o, templates) {
-    this.o = o || {};
-    this.templates = templates || {};
-    this.o.doctype = this.o.doctype || {
+  C = function(o) {
+    o = o || {};
+    o.indent = (o.format || '') && (o.indent || '  ');
+    o.newline = (o.format || '') && (o.newline || "\n");
+    o.globals = o.globals || {};
+    o.doctype = o.doctype || {
       '5': '<!doctype html>'
     };
-    this.o.block = 'a abbr address article aside audio b bdi bdo blockquote body button canvas caption cite code colgroup command data datagrid datalist dd del details dfn div dl dt em embed eventsource fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup html i iframe ins kbd keygen label legend li mark map menu meter nav noscript object ol optgroup option output p pre progress q ruby rp rt s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
-    this.o.atomic = 'area base br col hr img input link meta param'.split(' ');
-    this.o.special = {
+    o.block = o.block || 'a abbr address article aside audio b bdi bdo blockquote body button canvas caption cite code colgroup command data datagrid datalist dd del details dfn div dl dt em embed eventsource fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup html i iframe ins kbd keygen label legend li mark map menu meter nav noscript object ol optgroup option output p pre progress q ruby rp rt s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
+    o.atomic = o.atomic || 'area base br col hr img input link meta param'.split(' ');
+    o.special = o.special || {
       '&': '&amp;',
       '<': '&lt;',
       '>': '&gt;',
       '"': '&quot;',
       "'": '&#39;'
     };
-    this.o.indent = (this.o.format || '') && (this.o.indent || '  ');
-    return this.o.newline = (this.o.format || '') && (this.o.newline || "\n");
+    this.o = o;
   };
   C.prototype.render = function(tf, i) {
     var atts, g, l, o, t, x;
@@ -38,75 +39,74 @@
         return (new Array(l)).join(x);
       };
     })(o.indent);
-    g = {
-      tag: function(a, b, c, d) {
-        return function() {
-          var e, f, h, s, x;
-          e = arguments;
-          f = {};
-          l++;
-          s = '';
-          for (x in e) {
-            s += y(e[x]);
+    g = o.globals;
+    g.tag = function(a, b, c, d) {
+      return function() {
+        var e, f, h, s, x;
+        e = arguments;
+        f = {};
+        l++;
+        s = '';
+        for (x in e) {
+          s += y(e[x]);
+        }
+        if (s === 'sof' || s === 'sos' || s === 'so' || s === 'sf' || s === 'ss') {
+          e[0].replace(/([#.][\w\d-_]+)/g, function(m) {
+            var k='class';
+            (m[0] === '.') && (f[k] = (f[k] || '') + (f[k] ? ' ' : '') + m.substr(1));
+            (m[0] === '#') && (f.id = m.substr(1));
+          });
+        }
+        (s === 'of' || s === 'os' || s === 'o') && (f = e[0]);
+        (s === 'f' || s === 's') && (h = e[0]);
+        if (s === 'sof' || s === 'sos' || s === 'so') {
+          for (x in e[1]) {
+            f[x] = e[1][x];
           }
-          if (s === 'sof' || s === 'sos' || s === 'so' || s === 'sf' || s === 'ss') {
-            e[0].replace(/([#.][\w\d-_]+)/g, function(m) {
-              var k='class';
-              (m[0] === '.') && (f[k] = (f[k] || '') + (f[k] ? ' ' : '') + m.substr(1));
-              (m[0] === '#') && (f.id = m.substr(1));
-            });
-          }
-          (s === 'of' || s === 'os' || s === 'o') && (f = e[0]);
-          (s === 'f' || s === 's') && (h = e[0]);
-          if (s === 'sof' || s === 'sos' || s === 'so') {
-            for (x in e[1]) {
-              f[x] = e[1][x];
+          h = e[2];
+        }
+        (s === 'of' || s === 'os' || s === 'sf' || s === 'ss') && (h = e[1]);
+        f = y(b) === 'f' ? b(f) : '';
+        if (y(h) === 'f') {
+          t += (function() {
+            t = '';
+            h.call(i);
+            if (t !== '') {
+              t = o.newline + t + o.indent();
             }
-            h = e[2];
-          }
-          (s === 'of' || s === 'os' || s === 'sf' || s === 'ss') && (h = e[1]);
-          f = y(b) === 'f' ? b(f) : '';
-          if (y(h) === 'f') {
-            t += (function() {
-              t = '';
-              h.call(i);
-              if (t !== '') {
-                t = o.newline + t + o.indent();
-              }
-              return t = o.indent() + a + f + c + t + d + o.newline;
-            })();
-          } else {
-            t += o.indent() + a + f + c + (y(h) === 'u' ? '' : o.escape ? g.h(h) : h) + d + o.newline;
-          }
-          return l--;
-        };
-      },
-      block: function(s, f) {
-        return g.tag('{{' + (o.handlebars ? '#' : '') + s, null, '}}', '{{/' + (s.split(/ +/)[0]) + '}}')(f);
-      },
-      coffeescript: function(f) {
-        return g.script(('' + f).replace(/^function \(\) ?{\s*/, '').replace(/\s*}$/, ''));
-      },
-      doctype: function(v) {
-        return t = o.doctype[v || 5] + t;
-      },
-      comment: function(s, f) {
-        return g.tag('<!--' + s, null, '', '-->')(f);
-      },
-      ie: function(s, f) {
-        return g.tag('<!--[if ' + s + ']>', null, '', '<![endif]-->')(f);
-      },
-      h: function(s) {
-        return ('' + s).replace(/[&<>"']/g, function(c) {
-          return o.special[c] || c;
-        });
-      },
-      text: function(s) {
-        return t += o.escape ? g.h(s) : s;
-      },
-      literal: function(s) {
-        return t += s;
-      }
+            return t = o.indent() + a + f + c + t + d + o.newline;
+          })();
+        } else {
+          t += o.indent() + a + f + c + (y(h) === 'u' ? '' : o.escape ? g.h(h) : h) + d + o.newline;
+        }
+        return l--;
+      };
+    };
+    g.block = function(s, f) {
+      return g.tag('{{' + (o.handlebars ? '#' : '') + s, null, '}}', '{{/' + (s.split(/ +/)[0]) + '}}')(f);
+    };
+    g.h = function(s) {
+      return ('' + s).replace(/[&<>"']/g, function(c) {
+        return o.special[c] || c;
+      });
+    };
+    g.text = function(s) {
+      return t += o.escape ? g.h(s) : s;
+    };
+    g.literal = function(s) {
+      return t += s;
+    };
+    g.coffeescript = function(f) {
+      return g.script(('' + f).replace(/^function \(\) ?{\s*/, '').replace(/\s*}$/, ''));
+    };
+    g.doctype = function(v) {
+      return t = o.doctype[v || 5] + o.newline + t;
+    };
+    g.comment = function(s, f) {
+      return g.tag('<!--' + s, null, '', '-->')(f);
+    };
+    g.ie = function(s, f) {
+      return g.tag('<!--[if ' + s + ']>', null, '', '<![endif]-->')(f);
     };
     atts = function(a) {
       var k, z;
