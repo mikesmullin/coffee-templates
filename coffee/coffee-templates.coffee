@@ -123,43 +123,45 @@
         ((tok.v or tok.b) and tokm[k] = toks.push(tok)-1) # map token keys to token array indicies
       ) or a[0]
 
-    return JSON.stringify t unless toks.length
-    a = []
-    push=(m,s)-> # token collection
-      if a.length%2 is m or a.length < 1 # if its not empty and new or not like the previous
-        a.push s # push it
-      else # otherwise, its like the previous
-        a[a.length-1] += s # append it
-      return
-    #a=0 # template start
-    b=0 # cursor position; x-coordinate offset
-    g=t.length-1 # template end
-    for k of toks when toks[k].l is 1
-      c=toks[k].x # token start
-      d=c+toks[k].s.length # token end
-      push 0, t.substr b, c-b # push chars before token as string
-      if toks[k].v # process variable
-        push 1, toks[k].n # push token as js literal
-        b=d # move cursor to token end
-      else if toks[k].b # process block/function
-        e=toks[k].o.x # token pair start
-        f=e+toks[k].o.s.length # token pair end
-        # parse function arguments list and callback arguments list
-        toks[k].a = toks[k].a.replace(`/(^ *| *$)/`, '').replace(`/,? *\((.+)\) *$/`, ->
-          toks[k].c = arguments[1].split(`/[, ]+/`).join(',')
-          '').split(`/[, ]+/`).join(',')
-        # push token as js literal function call
-        push 1, 'w('+toks[k].n+',['+(if toks[k].a then toks[k].a+',' else '')+'function('+(toks[k].c or '')+'){o+='+C.compile(t.substr(d,e-d), false)+'}])'
-        b=f # move cursor to token pair end
-    if g-b # some strings remain at template end
-      push 0, t.substr b, g-b+1 # push chars from cursor to template end as string
-    t = ''
-    for i of a when a.hasOwnProperty(i) and a[i] isnt ''
-      t += (if t then '+' else '') +
-        if i%2
-          a[i]
-        else # odd indicies are stringified to become literals
-          JSON.stringify a[i]
+    if toks.length
+      a = []
+      push=(m,s)-> # token collection
+        if a.length%2 is m or a.length < 1 # if its not empty and new or not like the previous
+          a.push s # push it
+        else # otherwise, its like the previous
+          a[a.length-1] += s # append it
+        return
+      #a=0 # template start
+      b=0 # cursor position; x-coordinate offset
+      g=t.length-1 # template end
+      for k of toks when toks[k].l is 1
+        c=toks[k].x # token start
+        d=c+toks[k].s.length # token end
+        push 0, t.substr b, c-b # push chars before token as string
+        if toks[k].v # process variable
+          push 1, toks[k].n # push token as js literal
+          b=d # move cursor to token end
+        else if toks[k].b # process block/function
+          e=toks[k].o.x # token pair start
+          f=e+toks[k].o.s.length # token pair end
+          # parse function arguments list and callback arguments list
+          toks[k].a = toks[k].a.replace(`/(^ *| *$)/`, '').replace(`/,? *\((.+)\) *$/`, ->
+            toks[k].c = arguments[1].split(`/[, ]+/`).join(',')
+            '').split(`/[, ]+/`).join(',')
+          # push token as js literal function call
+          push 1, 'w('+toks[k].n+',['+(if toks[k].a then toks[k].a+',' else '')+'function('+(toks[k].c or '')+'){o+='+C.compile(t.substr(d,e-d), false)+'}])'
+          b=f # move cursor to token pair end
+      if g-b # some strings remain at template end
+        push 0, t.substr b, g-b+1 # push chars from cursor to template end as string
+      t = ''
+      for i of a when a.hasOwnProperty(i) and a[i] isnt ''
+        t += (if t then '+' else '') +
+          if i%2
+            a[i]
+          else # odd indicies are stringified to become literals
+            JSON.stringify a[i]
+    else
+      t = JSON.stringify t
     if wrap
       return Function 'i', 'with(i){'+C.engine+';return '+t+'}'
     else

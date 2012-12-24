@@ -150,48 +150,49 @@
       k = l + '.' + n;
       return !!((l === 1) && (cf && (toks[tokm[k]].o = tok)) || ((tok.v || tok.b) && (tokm[k] = toks.push(tok) - 1))) || a[0];
     });
-    if (!toks.length) {
-      return JSON.stringify(t);
-    }
-    a = [];
-    push = function(m, s) {
-      if (a.length % 2 === m || a.length < 1) {
-        a.push(s);
-      } else {
-        a[a.length - 1] += s;
+    if (toks.length) {
+      a = [];
+      push = function(m, s) {
+        if (a.length % 2 === m || a.length < 1) {
+          a.push(s);
+        } else {
+          a[a.length - 1] += s;
+        }
+      };
+      b = 0;
+      g = t.length - 1;
+      for (k in toks) {
+        if (!(toks[k].l === 1)) {
+          continue;
+        }
+        c = toks[k].x;
+        d = c + toks[k].s.length;
+        push(0, t.substr(b, c - b));
+        if (toks[k].v) {
+          push(1, toks[k].n);
+          b = d;
+        } else if (toks[k].b) {
+          e = toks[k].o.x;
+          f = e + toks[k].o.s.length;
+          toks[k].a = toks[k].a.replace(/(^ *| *$)/, '').replace(/,? *\((.+)\) *$/, function() {
+            toks[k].c = arguments[1].split(/[, ]+/).join(',');
+            return '';
+          }).split(/[, ]+/).join(',');
+          push(1, 'w(' + toks[k].n + ',[' + (toks[k].a ? toks[k].a + ',' : '') + 'function(' + (toks[k].c || '') + '){o+=' + C.compile(t.substr(d, e - d), false) + '}])');
+          b = f;
+        }
       }
-    };
-    b = 0;
-    g = t.length - 1;
-    for (k in toks) {
-      if (!(toks[k].l === 1)) {
-        continue;
+      if (g - b) {
+        push(0, t.substr(b, g - b + 1));
       }
-      c = toks[k].x;
-      d = c + toks[k].s.length;
-      push(0, t.substr(b, c - b));
-      if (toks[k].v) {
-        push(1, toks[k].n);
-        b = d;
-      } else if (toks[k].b) {
-        e = toks[k].o.x;
-        f = e + toks[k].o.s.length;
-        toks[k].a = toks[k].a.replace(/(^ *| *$)/, '').replace(/,? *\((.+)\) *$/, function() {
-          toks[k].c = arguments[1].split(/[, ]+/).join(',');
-          return '';
-        }).split(/[, ]+/).join(',');
-        push(1, 'w(' + toks[k].n + ',[' + (toks[k].a ? toks[k].a + ',' : '') + 'function(' + (toks[k].c || '') + '){o+=' + C.compile(t.substr(d, e - d), false) + '}])');
-        b = f;
+      t = '';
+      for (i in a) {
+        if (a.hasOwnProperty(i) && a[i] !== '') {
+          t += (t ? '+' : '') + (i % 2 ? a[i] : JSON.stringify(a[i]));
+        }
       }
-    }
-    if (g - b) {
-      push(0, t.substr(b, g - b + 1));
-    }
-    t = '';
-    for (i in a) {
-      if (a.hasOwnProperty(i) && a[i] !== '') {
-        t += (t ? '+' : '') + (i % 2 ? a[i] : JSON.stringify(a[i]));
-      }
+    } else {
+      t = JSON.stringify(t);
     }
     if (wrap) {
       return Function('i', 'with(i){' + C.engine + ';return ' + t + '}');
