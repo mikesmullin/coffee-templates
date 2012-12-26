@@ -33,7 +33,7 @@
     t='' # template
     l=0  # indentation level
     o=@o # options (without requirement of `this.` context)
-    o.indent=((x)->->(new Array(l)).join x)(o.indent) # indentation function
+    indent=((x)->->(new Array(l)).join x)(o.indent) # indentation function
     g=o.globals # globals abbreviated
     g.tag=(a,b,c,d)->->
       # a # prefix
@@ -75,11 +75,11 @@
         t+=(->
           t = ''
           h.call i
-          t = o.newline+t+o.indent() if t isnt ''
-          t = o.indent()+a+f+c+t+d+o.newline
+          t = o.newline+t+indent() if t isnt ''
+          t = indent()+a+f+c+t+d+o.newline
         )()
       else
-        t += o.indent()+a+f+c+(if y(h) is 'u' then '' else if o.escape then g.h(h) else h)+d+o.newline
+        t += indent()+a+f+c+(if y(h) is 'u' then '' else if o.escape then g.h(h) else h)+d+o.newline
       l--
     g.block = (s,f) -> g.tag('{{'+(if o.handlebars then '#' else '')+s, null, '}}', '{{/'+(s.split(`/ +/`)[0])+'}}')(f)
     g.h = (s) -> (''+s).replace /[&<>"']/g, (c) -> o.special[c] or c # escape special characters

@@ -30,11 +30,11 @@
     this.o = o;
   };
   C.prototype.render = function(tf, i) {
-    var atts, g, l, o, t, x;
+    var atts, g, indent, l, o, t, x;
     t = '';
     l = 0;
     o = this.o;
-    o.indent = (function(x) {
+    indent = (function(x) {
       return function() {
         return (new Array(l)).join(x);
       };
@@ -72,12 +72,12 @@
             t = '';
             h.call(i);
             if (t !== '') {
-              t = o.newline + t + o.indent();
+              t = o.newline + t + indent();
             }
-            return t = o.indent() + a + f + c + t + d + o.newline;
+            return t = indent() + a + f + c + t + d + o.newline;
           })();
         } else {
-          t += o.indent() + a + f + c + (y(h) === 'u' ? '' : o.escape ? g.h(h) : h) + d + o.newline;
+          t += indent() + a + f + c + (y(h) === 'u' ? '' : o.escape ? g.h(h) : h) + d + o.newline;
         }
         return l--;
       };
