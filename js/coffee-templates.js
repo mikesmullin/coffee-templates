@@ -18,8 +18,8 @@
     o.doctype = o.doctype || {
       '5': '<!doctype html>'
     };
-    o.block = o.block || 'a abbr address article aside audio b bdi bdo blockquote body button canvas caption cite code colgroup command data datagrid datalist dd del details dfn div dl dt em embed eventsource fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup html i iframe ins kbd keygen label legend li mark map menu meter nav noscript object ol optgroup option output p pre progress q ruby rp rt s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
-    o.atomic = o.atomic || 'area base br col hr img input link meta param'.split(' ');
+    o.tags = o.tags || 'a abbr address article aside audio b bdi bdo blockquote body button canvas caption cite code colgroup command data datagrid datalist dd del details dfn div dl dt em embed eventsource fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup html i iframe ins kbd keygen label legend li mark map menu meter nav noscript object ol optgroup option output p pre progress q ruby rp rt s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
+    o.atags = o.atags || 'area base br col hr img input link meta param'.split(' ');
     o.special = o.special || {
       '&': '&amp;',
       '<': '&lt;',
@@ -116,16 +116,15 @@
       }
       return z;
     };
-    for (x in o.block) {
-      g[o.block[x]] = g.tag('<' + o.block[x], atts, '>', '</' + o.block[x] + '>');
+    for (x in o.tags) {
+      g[o.tags[x]] = g.tag('<' + o.tags[x], atts, '>', '</' + o.tags[x] + '>');
     }
-    for (x in o.atomic) {
-      g[o.atomic[x]] = g.tag('<' + o.atomic[x], atts, '/>', '');
+    for (x in o.atags) {
+      g[o.atags[x]] = g.tag('<' + o.atags[x], atts, '/>', '');
     }
     (Function('g', '_i', 'with(g){(' + tf + ').call(_i)}'))(g, i);
     return t;
   };
-  C.engine = "var o='',w=function(f,a){o='';f.apply(i, a);return o}";
   C.compile = function(t, wrap) {
     var a, b, c, d, e, f, g, i, k, lvl, push, tokm, toks;
     if (wrap == null) {
