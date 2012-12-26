@@ -195,19 +195,19 @@
       t = JSON.stringify(t);
     }
     if (wrap) {
-      return Function('i', 'with(i){' + C.engine + ';return ' + t + '}');
+      return Function('g', 'with(g||{}){var o="",w=function(f,a){o="";f.apply(i, a);return o};return ' + t.replace('</script>', '<"+"/script>') + '}');
     } else {
       return t;
     }
   };
   C.compileAll = function(a) {
     var f, k, t;
-    f = 'with(i){' + C.engine + ",t={}\n";
+    f = 'var o="";with(g||{}){var partial=function(n,g){with(g||{}){var w=function(f,a){o="";f.apply(g, a);return o},t={}\n';
     for (k in a) {
       t = a[k];
-      f += 't[' + JSON.stringify(k) + ']=function(){return ' + a[k] + "}\n";
+      f += 't[' + JSON.stringify(k) + ']=function(){return ' + a[k].replace('</script>', '<"+"/script>') + "}\n";
     }
-    return Function('n', 'i', f + 'return t[n].call(i)}');
+    return Function('n', 'g', f + 'o+=t[n]()}}}partial(n,g);return o');
   };
   return C;
 })());
