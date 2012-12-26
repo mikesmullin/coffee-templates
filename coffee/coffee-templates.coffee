@@ -143,11 +143,12 @@
           e=toks[k].o.x # token pair start
           f=e+toks[k].o.s.length # token pair end
           # parse function arguments list and callback arguments list
-          toks[k].a = toks[k].a.replace(`/(^ *| *$)/`, '').replace(`/,? *\((.+)\) *$/`, ->
-            toks[k].c = arguments[1].split(`/[, ]+/`).join(',')
-            '').split(`/[, ]+/`).join(',')
+          toks[k].a = toks[k].a.replace(`/(^ *| *$)/`, '').replace(`/, *\((.+)\) *$/`, ->
+            toks[k].c = arguments[1].split(`/, */`).join(',')
+            '').split(`/, */`).join(',').replace(/([\w\d]+):(.+)$/, '{$1:$2}')
           # push token as js literal function call
-          push 1, 'w('+toks[k].n+',['+(if toks[k].a then toks[k].a+',' else '')+'function('+(toks[k].c or '')+'){o+='+C.compile(t.substr(d,e-d), false)+'}])'
+          ff=t.substr(d,e-d)
+          push 1, 'w('+toks[k].n+',['+(if toks[k].a then toks[k].a+(if ff then ',' else '') else '')+(if ff then 'function('+(toks[k].c or '')+'){o+='+C.compile(ff, false)+'}' else '')+'])'
           b=f # move cursor to token pair end
       if g-b # some strings remain at template end
         push 0, t.substr b, g-b+1 # push chars from cursor to template end as string

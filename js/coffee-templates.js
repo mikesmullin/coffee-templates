@@ -126,7 +126,7 @@
     return t;
   };
   C.compile = function(t, wrap) {
-    var a, b, c, d, e, f, g, i, k, lvl, push, tokm, toks;
+    var a, b, c, d, e, f, ff, g, i, k, lvl, push, tokm, toks;
     if (wrap == null) {
       wrap = true;
     }
@@ -173,11 +173,12 @@
         } else if (toks[k].b) {
           e = toks[k].o.x;
           f = e + toks[k].o.s.length;
-          toks[k].a = toks[k].a.replace(/(^ *| *$)/, '').replace(/,? *\((.+)\) *$/, function() {
-            toks[k].c = arguments[1].split(/[, ]+/).join(',');
+          toks[k].a = toks[k].a.replace(/(^ *| *$)/, '').replace(/, *\((.+)\) *$/, function() {
+            toks[k].c = arguments[1].split(/, */).join(',');
             return '';
-          }).split(/[, ]+/).join(',');
-          push(1, 'w(' + toks[k].n + ',[' + (toks[k].a ? toks[k].a + ',' : '') + 'function(' + (toks[k].c || '') + '){o+=' + C.compile(t.substr(d, e - d), false) + '}])');
+          }).split(/, */).join(',').replace(/([\w\d]+):(.+)$/, '{$1:$2}');
+          ff = t.substr(d, e - d);
+          push(1, 'w(' + toks[k].n + ',[' + (toks[k].a ? toks[k].a + (ff ? ',' : '') : '') + (ff ? 'function(' + (toks[k].c || '') + '){o+=' + C.compile(ff, false) + '}' : '') + '])');
           b = f;
         }
       }
