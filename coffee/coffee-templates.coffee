@@ -177,7 +177,10 @@
     f+=';with(g||{}){var partial=function(n,g){with(g||{}){var w=function(f,a){o="";f.apply(g, a);return o},t={}\n'
     for k, t of a
       f+='t['+JSON.stringify(k)+']=function(){return '+a[k].replace('</script>','<"+"/script>')+"}\n"
-    return Function 'n', 'g', f+'o+=t[n]()}}}partial(n,g);return o'
+    f+='o+=t[n]()}}}partial(n,g);'
+    if o.common_helpers
+      f+='if(g.layout){var l=o;c["content"]=function(){o+=l};o="";partial(g.layout,g)}'
+    return Function 'n', 'g', f+'return o'
 
   return C
 )())

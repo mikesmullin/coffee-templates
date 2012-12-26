@@ -221,7 +221,11 @@
       t = a[k];
       f += 't[' + JSON.stringify(k) + ']=function(){return ' + a[k].replace('</script>', '<"+"/script>') + "}\n";
     }
-    return Function('n', 'g', f + 'o+=t[n]()}}}partial(n,g);return o');
+    f += 'o+=t[n]()}}}partial(n,g);';
+    if (o.common_helpers) {
+      f += 'if(g.layout){var l=o;c["content"]=function(){o+=l};o="";partial(g.layout,g)}';
+    }
+    return Function('n', 'g', f + 'return o');
   };
   return C;
 })());
