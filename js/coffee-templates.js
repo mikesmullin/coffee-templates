@@ -20,6 +20,7 @@
     };
     o.tags = o.tags || 'a abbr address article aside audio b bdi bdo blockquote body button canvas caption cite code colgroup command data datagrid datalist dd del details dfn div dl dt em embed eventsource fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup html i iframe ins kbd keygen label legend li mark map menu meter nav noscript object ol optgroup option output p pre progress q ruby rp rt s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split(' ');
     o.atags = o.atags || 'area base br col hr img input link meta param'.split(' ');
+    o.blocks = o.blocks || 'content_for yields'.split(' ');
     o.special = o.special || {
       '&': '&amp;',
       '<': '&lt;',
@@ -30,7 +31,7 @@
     this.o = o;
   };
   C.prototype.render = function(tf, i) {
-    var atts, g, indent, l, o, t, x;
+    var atts, g, indent, l, o, t, x, _fn;
     t = '';
     l = 0;
     o = this.o;
@@ -122,6 +123,14 @@
     for (x in o.atags) {
       g[o.atags[x]] = g.tag('<' + o.atags[x], atts, '/>', '');
     }
+    _fn = function(x) {
+      return g[x] = function(s, f) {
+        return g.block(x + ' ' + JSON.stringify(s), f);
+      };
+    };
+    for (x in o.blocks) {
+      _fn(o.blocks[x]);
+    }
     (Function('g', '_i', 'with(g){(' + tf + ').call(_i)}'))(g, i);
     return t;
   };
@@ -202,7 +211,7 @@
   };
   C.compileAll = function(a) {
     var f, k, t;
-    f = 'var o="";with(g||{}){var partial=function(n,g){with(g||{}){var w=function(f,a){o="";f.apply(g, a);return o},t={}\n';
+    f = 'var o="",c={},content_for=function(s,f){c[s]=f},yields=function(s){if(c[s])c[s]()};with(g||{}){var partial=function(n,g){with(g||{}){var w=function(f,a){o="";f.apply(g, a);return o},t={}\n';
     for (k in a) {
       t = a[k];
       f += 't[' + JSON.stringify(k) + ']=function(){return ' + a[k].replace('</script>', '<"+"/script>') + "}\n";
