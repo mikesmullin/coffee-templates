@@ -209,9 +209,14 @@
       return t;
     }
   };
-  C.compileAll = function(a) {
+  C.compileAll = function(a, o) {
     var f, k, t;
-    f = 'var o="",c={},content_for=function(s,f){c[s]=f},yields=function(s){if(c[s])c[s]()};with(g||{}){var partial=function(n,g){with(g||{}){var w=function(f,a){o="";f.apply(g, a);return o},t={}\n';
+    o = o || {};
+    f = 'var o=""';
+    if (o.common_helpers) {
+      f += ',c={},content_for=function(s,f){c[s]=f},yields=function(s){if(c[s])c[s]()},each=function(o,f){for(var k in o)if(o.hasOwnProperty(k))f.apply(o[k],[k,o[k]])}';
+    }
+    f += ';with(g||{}){var partial=function(n,g){with(g||{}){var w=function(f,a){o="";f.apply(g, a);return o},t={}\n';
     for (k in a) {
       t = a[k];
       f += 't[' + JSON.stringify(k) + ']=function(){return ' + a[k].replace('</script>', '<"+"/script>') + "}\n";
