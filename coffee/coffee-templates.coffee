@@ -81,7 +81,12 @@
       else
         t += indent()+a+f+c+(if y(h) is 'u' then '' else if o.escape then g.h(h) else h)+d+o.newline
       l--
-    g.block = (s,f) -> g.tag('{{'+(if o.handlebars then '#' else '')+s, null, '}}', '{{/'+(s.split(`/ +/`)[0])+'}}')(f)
+    g.block = (s,f) ->
+      if typeof f is 'undefined' # if no function provided, return string only (e.g. for inline use in arguments)
+        return '{{'+(if o.handlebars then '#' else '')+s+', (s)}}{{s}}{{/'+s.split(`/ +/`)[0]+'}}'
+      # otherwise, append to template and return nothing
+      g.tag('{{'+(if o.handlebars then '#' else '')+s, null, '}}', '{{/'+(s.split(`/ +/`)[0])+'}}')(f)
+      return
     g.h = (s) -> (''+s).replace /[&<>"']/g, (c) -> o.special[c] or c # escape special characters
     g.text = (s) -> t += if o.escape then g.h(s) else s
     g.literal = (s) -> t += s
