@@ -23,7 +23,6 @@
     o.doctype = o.doctype or { '5': '<!doctype html>' }
     o.tags = o.tags or 'a abbr address article aside audio b bdi bdo blockquote body button canvas caption cite code colgroup command data datagrid datalist dd del details dfn div dl dt em embed eventsource fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup html i iframe ins kbd keygen label legend li mark map menu meter nav noscript object ol optgroup option output p pre progress q ruby rp rt s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr'.split ' '
     o.atags = o.atags or 'area base br col hr img input link meta param'.split ' '
-    o.blocks = o.blocks or 'content_for yields'.split ' '
     o.special = o.special or { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }
     @o = o
     return
@@ -99,8 +98,6 @@
       g[o.tags[x]] = g.tag '<'+o.tags[x], atts, '>', '</'+o.tags[x]+'>'
     for x of o.atags
       g[o.atags[x]] = g.tag '<'+o.atags[x], atts, '/>', ''
-    for x of o.blocks
-      ((x)-> g[x] = (s,f)-> g.block x+' '+JSON.stringify(s), f )(o.blocks[x])
     (Function 'g', '_i', 'with(g){('+tf+').call(_i)}')(g, i)
     return t
 
