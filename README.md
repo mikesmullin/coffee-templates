@@ -15,6 +15,19 @@ Inspired by [coffeecup](https://github.com/gradus/coffeecup),
  and [ck](https://github.com/aeosynth/ck),
  and [mini-handlebars](https://github.com/mikesmullin/mini-handlebars) libraries.
 
+## And now, a Haiku
+
+    5  template languages
+    7  are low-level logical
+    5  function recursions
+    7  the author dared not express
+    5  in the host language.
+    
+    5  syntactic sugar
+    7  on low-level languages
+    5  ala coffeescript
+    7  brings template control to the
+    5  speed where it belongs.
 
 ## Rendering Coffee to HTML
 
