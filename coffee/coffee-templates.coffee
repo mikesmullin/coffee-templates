@@ -182,7 +182,7 @@
     f+='o+=t[n]()}}}partial(n,g);'
     if o.common_helpers
       f+='if(g.layout){var l=o;c["content"]=function(){o+=l};o="";partial(g.layout,g)}'
-    return Function 'n', 'g', f+'return o'
+    return 'var templates='+Function 'n', 'g', f+'return o'
 
   return C
 )())
