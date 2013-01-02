@@ -1,6 +1,6 @@
 {
   "name": "coffee-templates",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Fastest Minimalist CoffeeScript/JavaScript CoffeeCup/Handlebars/Mustache template engine.",
   "main": "js/coffee-templates.js",
   "directories": {
@@ -33,6 +33,6 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "devDependencies": {
-    "chai": "~1.4.0"
+    "chai": "*"
   }
 }

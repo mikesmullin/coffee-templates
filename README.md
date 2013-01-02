@@ -1,9 +1,9 @@
 # Why CoffeeTemplates?
 
- * 89.5% smaller download than [CoffeeCup](https://github.com/gradus/coffeecup) + [Handlebars](http://handlebarsjs.com/)--but compiles BOTH with just [226 lines](https://github.com/mikesmullin/coffee-templates/blob/production/js/coffee-templates.js).
- * thats just [6.9KB](https://raw.github.com/mikesmullin/coffee-templates/production/js/coffee-templates.js), [4.2KB minified](https://raw.github.com/mikesmullin/coffee-templates/production/js/coffee-templates.min.js), and [2.1KB gzipped](https://raw.github.com/mikesmullin/coffee-templates/production/js/coffee-templates.min.js.gz)
+ * 89.5% smaller download than [CoffeeCup](https://github.com/gradus/coffeecup) + [Handlebars](http://handlebarsjs.com/)--but compiles BOTH with just [226 lines](https://github.com/mikesmullin/coffee-templates/blob/stable/js/coffee-templates.js).
+ * thats just [6.9KB](https://raw.github.com/mikesmullin/coffee-templates/stable/js/coffee-templates.js), [4.2KB minified](https://raw.github.com/mikesmullin/coffee-templates/stable/js/coffee-templates.min.js), and [2.1KB gzipped](https://raw.github.com/mikesmullin/coffee-templates/stable/js/coffee-templates.min.js.gz)
  * renders between [22%](http://jsperf.com/coffeecup-vs-coffee-templates) to [80% faster](http://jsperf.com/handlebars-vs-coffee-templates) as tested on node/chrome/v8
- * stand-alone client-side in browser or server-side with Node.js with NO [dependencies](https://github.com/mikesmullin/coffee-templates/blob/production/package.json)
+ * stand-alone client-side in browser or server-side with Node.js with NO [dependencies](https://github.com/mikesmullin/coffee-templates/blob/stable/package.json)
  * compiling to .js yields one-function-per-template which renders using ONLY string concatenation--the secret to its speed
  * when compiled to .js, no ancillary "engine" library is required to render the template functions. nor is one embedded within the functions.
  * compiling directly from `.coffee` to `.html` or aggregated `templates.js` eliminates a lot of inbetween middleware
@@ -230,7 +230,7 @@ From here you would normally save the function in a file like `static/public/ass
 
 ## Further examples
 
-As usual, for the latest examples, review the easy-to-follow [./test/test.coffee](https://github.com/mikesmullin/coffee-templates/blob/production/test/test.coffee).
+As usual, for the latest examples, review the easy-to-follow [./test/test.coffee](https://github.com/mikesmullin/coffee-templates/blob/stable/test/test.coffee).
 
 Or try it immediately in your browser with [codepen](http://codepen.io/mikesmullin/pen/nIytw).
 
