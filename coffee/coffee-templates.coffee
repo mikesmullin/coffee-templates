@@ -47,6 +47,7 @@
       s='' # interface signature
       # x # interation integer
       for x of e
+        e[x] = ''+e[x] if y(e[x]) is 'n' # convert any numbers to strings
         s+=y e[x] # (string, object, function) == 'sof'
       if s is 'sof' or s is 'sos' or s is 'so' or s is 'sf' or s is 'ss'
         # convert string to attributes object

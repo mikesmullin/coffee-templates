@@ -48,6 +48,9 @@
         l++;
         s = '';
         for (x in e) {
+          if (y(e[x]) === 'n') {
+            e[x] = '' + e[x];
+          }
           s += y(e[x]);
         }
         if (s === 'sof' || s === 'sos' || s === 'so' || s === 'sf' || s === 'ss') {
