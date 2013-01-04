@@ -103,7 +103,7 @@
       return t += s;
     };
     g.coffeescript = function(f) {
-      return g.script(('' + f).replace(/^function \(\) ?{\s*/, '').replace(/\s*}$/, ''));
+      return g.script(('' + f).replace(/^function \(\) ?\{\s*/, '').replace(/\s*\}$/, ''));
     };
     g.doctype = function(v) {
       return t = o.doctype[v || 5] + o.newline + t;
@@ -113,6 +113,18 @@
     };
     g.ie = function(s, f) {
       return g.tag('<!--[if ' + s + ']>', null, '', '<![endif]-->')(f);
+    };
+    g.content_for = function(s, f) {
+      return g.block('content_for ' + JSON.stringify(s), f);
+    };
+    g.yields = function(s) {
+      return g.block('yields ' + JSON.stringify(s), function() {});
+    };
+    g.partial = function(s, args) {
+      return g.block('partial ' + JSON.stringify(s) + (args ? ', ' + args : ''), function() {});
+    };
+    g.layout = function(s) {
+      return g.block('layout ' + JSON.stringify(s), function() {});
     };
     atts = function(a) {
       var k, z;
@@ -131,11 +143,13 @@
     (Function('g', '_i', 'with(g){(' + tf + ').call(_i)}'))(g, i);
     return t;
   };
-  C.compile = function(t, wrap) {
-    var a, b, c, d, e, f, ff, g, i, k, lvl, push, tokm, toks;
+  C.compile = function(t, o, wrap) {
+    var a, b, c, d, e, f, ff, g, i, k, lvl, p, push, tokm, toks;
     if (wrap == null) {
       wrap = true;
     }
+    o = o || {};
+    p = o.safe_namespace || '';
     lvl = 1;
     toks = [];
     tokm = {};
@@ -184,7 +198,7 @@
             return '';
           }).split(/, */).join(',').replace(/([\w\d]+):(.+)$/, '{$1:$2}');
           ff = t.substr(d, e - d);
-          push(1, 'w(' + toks[k].n + ',[' + (toks[k].a ? toks[k].a + (ff ? ',' : '') : '') + (ff ? 'function(' + (toks[k].c || '') + '){o+=' + C.compile(ff, false) + '}' : '') + '])');
+          push(1, p + 'w(' + toks[k].n + ',[' + (toks[k].a ? toks[k].a + (ff ? ',' : '') : '') + (ff ? 'function(' + (toks[k].c || '') + '){' + p + 'o+=' + C.compile(ff, o, false) + '}' : '') + '])');
           b = f;
         }
       }
@@ -201,28 +215,34 @@
       t = JSON.stringify(t);
     }
     if (wrap) {
-      return Function('g', 'with(g||{}){var o="",w=function(f,a){o="";f.apply(i, a);return o};return ' + t.replace('</script>', '<"+"/script>') + '}');
+      return Function(p + 'g', 'with(' + p + 'g||{}){var ' + p + 'o="",' + p + 'w=function(f,a){' + p + 'o="";f.apply({},a);return ' + p + 'o};return ' + t + '}');
     } else {
       return t;
     }
   };
   C.compileAll = function(a, o) {
-    var f, k, t;
+    var f, k, p, t;
     o = o || {};
-    f = 'var o=""';
-    if (o.common_helpers) {
-      f += ',c={},content_for=function(s,f){c[s]=f},yields=function(s){if(c[s])c[s]()},each=function(o,f){for(var k in o)if(o.hasOwnProperty(k))f.apply(o[k],[k,o[k]])}';
+    p = o.safe_namespace || '';
+    for (k in a) {
+      a[k] = C.compile(a[k], o, false);
     }
-    f += ';with(g||{}){var partial=function(n,g){with(g||{}){var w=function(f,a){o="";f.apply(g, a);return o},t={}\n';
+    f = 'var ' + p + 'o="";';
+    if (!o.omit_helpers) {
+      f += 'var ' + p + 'c={},' + p + 'p="partial",' + p + 'l="layout",content_for=function(s,f){' + p + 'c[s]=f},yields=function(s){var b=' + p + 'c[s];b&&((' + p + 'c[s]="")||b())},' + p + 'z=function(' + p + 'g){var ' + p + 'y=' + p + 'o,' + p + 'n;if(' + p + 'g&&' + p + 'g.' + p + 'l&&(' + p + 'n=' + p + 'g.' + p + 'l.pop())){' + p + 'c["content"]=function(){' + p + 'o+=' + p + 'y};' + p + 'o="";' + p + 'g[' + p + 'p](' + p + 'n,' + p + 'g);}},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};' + p + 'g=' + p + 'g||{};' + p + 'g.' + p + 'l=[' + p + 'g[' + p + 'l]];' + p + 'g[' + p + 'l]=function(n){' + p + 'g.' + p + 'l.push(n)};' + p + 'g[' + p + 'p]=function(' + p + 'n,' + p + 'e){' + p + 'e=' + p + 'e||{};for(var ' + p + 'k in ' + p + 'g){' + p + 'e[' + p + 'k]=' + p + 'e[' + p + 'k]||' + p + 'g[' + p + 'k]};with(' + p + 'e){';
+    } else {
+      f += 'with(' + p + 'g){';
+    }
+    f += 'var ' + p + 'w=function(f,a){' + p + 'o="";f.apply({},a);return ' + p + 'o},' + p + 't={\n';
     for (k in a) {
       t = a[k];
-      f += 't[' + JSON.stringify(k) + ']=function(){return ' + a[k].replace('</script>', '<"+"/script>') + "}\n";
+      f += JSON.stringify(k) + ':function(){return ' + a[k].replace('</script>', '<"+"/script>') + "},\n";
     }
-    f += 'o+=t[n]()}}}partial(n,g);';
-    if (o.common_helpers) {
-      f += 'if(g.layout){var l=o;c["content"]=function(){o+=l};o="";partial(g.layout,g)}';
+    f += '}};' + p + 'o+=' + p + 't[' + p + 'n]();';
+    if (!o.omit_helpers) {
+      f += '' + p + 'z(' + p + 'g)};' + p + 'g[' + p + 'p](' + p + 'n,' + p + 'g);' + p + 'z(' + p + 'g);';
     }
-    return 'var templates=' + Function('n', 'g', f + 'return o');
+    return Function('' + p + 'n', '' + p + 'g', f + 'return ' + p + 'o');
   };
   return C;
 })());

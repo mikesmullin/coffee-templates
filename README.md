@@ -53,7 +53,7 @@ html ->
       header, nav, section, footer {display: block}
     '''
 
-    comment 'Stylus is not supported but an alternative is coming soon'
+    comment 'Stylus is not supported but CoffeeStyleshets might be'
 
     script src: '/js/jquery.js'
 

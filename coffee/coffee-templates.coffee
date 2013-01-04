@@ -91,10 +91,14 @@
     g.h = (s) -> (''+s).replace /[&<>"']/g, (c) -> o.special[c] or c # escape special characters
     g.text = (s) -> t += if o.escape then g.h(s) else s
     g.literal = (s) -> t += s
-    g.coffeescript = (f) -> g.script (''+f).replace(/^function \(\) ?{\s*/,'').replace(/\s*}$/,'')
+    g.coffeescript = (f) -> g.script (''+f).replace(/^function \(\) ?\{\s*/,'').replace(/\s*\}$/,'')
     g.doctype = (v) -> t = o.doctype[v or 5] + o.newline + t
     g.comment = (s,f) -> g.tag('<!--'+s, null, '', '-->')(f)
     g.ie = (s,f) -> g.tag('<!--[if '+s+']>', null, '', '<![endif]-->')(f)
+    g.content_for = (s,f) -> g.block 'content_for '+JSON.stringify(s), f
+    g.yields = (s) -> g.block 'yields '+JSON.stringify(s), ->
+    g.partial = (s, args) -> g.block 'partial '+JSON.stringify(s)+(if args then ', '+args else ''), ->
+    g.layout = (s) -> g.block 'layout '+JSON.stringify(s), ->
     atts = (a) ->
       z = ''
       for k of a
@@ -109,7 +113,9 @@
 
   # main compile function
   # formerly mini-handlebars
-  C.compile = (t, wrap=true) ->
+  C.compile = (t, o, wrap=true) ->
+    o = o or {}
+    p = o.safe_namespace or '' # e.g., set to '__' if conflicts occur with template variables
     lvl = 1; toks = []; tokm = {}
     t.replace `/\{\{([\/#]?[^ }]+)( [^}]+)?\}\}/g`, ->
       a = arguments; cf = a[1][0] is '/' # closing block/function
@@ -154,7 +160,7 @@
             '').split(`/, */`).join(',').replace(/([\w\d]+):(.+)$/, '{$1:$2}')
           # push token as js literal function call
           ff=t.substr(d,e-d)
-          push 1, 'w('+toks[k].n+',['+(if toks[k].a then toks[k].a+(if ff then ',' else '') else '')+(if ff then 'function('+(toks[k].c or '')+'){o+='+C.compile(ff, false)+'}' else '')+'])'
+          push 1, p+'w('+toks[k].n+',['+(if toks[k].a then toks[k].a+(if ff then ',' else '') else '')+(if ff then 'function('+(toks[k].c or '')+'){'+p+'o+='+C.compile(ff, o, false)+'}' else '')+'])'
           b=f # move cursor to token pair end
       if g-b # some strings remain at template end
         push 0, t.substr b, g-b+1 # push chars from cursor to template end as string
@@ -168,22 +174,26 @@
     else
       t = JSON.stringify t
     if wrap
-      return Function 'g', 'with(g||{}){var o="",w=function(f,a){o="";f.apply(i, a);return o};return '+t.replace('</script>','<"+"/script>')+'}'
-    else
-      return t # all literals concatenated and returned
+      return Function p+'g', 'with('+p+'g||{}){var '+p+'o="",'+p+'w=function(f,a){'+p+'o="";f.apply({},a);return '+p+'o};return '+t+'}'
+    else return t
 
   C.compileAll=(a,o)->
     o = o or {}
-    f='var o=""'
-    if o.common_helpers
-      f+=',c={},content_for=function(s,f){c[s]=f},yields=function(s){if(c[s])c[s]()},each=function(o,f){for(var k in o)if(o.hasOwnProperty(k))f.apply(o[k],[k,o[k]])}'
-    f+=';with(g||{}){var partial=function(n,g){with(g||{}){var w=function(f,a){o="";f.apply(g, a);return o},t={}\n'
+    p = o.safe_namespace or '' # e.g., set to '__' if conflicts occur with template variables
+    for k of a
+      a[k] = C.compile a[k], o, false
+    f = 'var '+p+'o="";'
+    unless o.omit_helpers
+      f += 'var '+p+'c={},'+p+'p="partial",'+p+'l="layout",content_for=function(s,f){'+p+'c[s]=f},yields=function(s){var b='+p+'c[s];b&&(('+p+'c[s]="")||b())},'+p+'z=function('+p+'g){var '+p+'y='+p+'o,'+p+'n;if('+p+'g&&'+p+'g.'+p+'l&&('+p+'n='+p+'g.'+p+'l.pop())){'+p+'c["content"]=function(){'+p+'o+='+p+'y};'+p+'o="";'+p+'g['+p+'p]('+p+'n,'+p+'g);}},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};'+p+'g='+p+'g||{};'+p+'g.'+p+'l=['+p+'g['+p+'l]];'+p+'g['+p+'l]=function(n){'+p+'g.'+p+'l.push(n)};'+p+'g['+p+'p]=function('+p+'n,'+p+'e){'+p+'e='+p+'e||{};for(var '+p+'k in '+p+'g){'+p+'e['+p+'k]='+p+'e['+p+'k]||'+p+'g['+p+'k]};with('+p+'e){'
+    else
+      f += 'with('+p+'g){'
+    f += 'var '+p+'w=function(f,a){'+p+'o="";f.apply({},a);return '+p+'o},'+p+'t={\n'
     for k, t of a
-      f+='t['+JSON.stringify(k)+']=function(){return '+a[k].replace('</script>','<"+"/script>')+"}\n"
-    f+='o+=t[n]()}}}partial(n,g);'
-    if o.common_helpers
-      f+='if(g.layout){var l=o;c["content"]=function(){o+=l};o="";partial(g.layout,g)}'
-    return 'var templates='+Function 'n', 'g', f+'return o'
+      f += JSON.stringify(k)+':function(){return '+a[k].replace('</script>','<"+"/script>')+"},\n"
+    f += '}};'+p+'o+='+p+'t['+p+'n]();'
+    unless o.omit_helpers
+      f+=''+p+'z('+p+'g)};'+p+'g['+p+'p]('+p+'n,'+p+'g);'+p+'z('+p+'g);'
+    return Function ''+p+'n', ''+p+'g', f+'return '+p+'o'
 
   return C
 )())
