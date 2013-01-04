@@ -39,8 +39,8 @@ describe 'CoffeeTemplates', ->
     it 'renders tags with attribute objects, ending with function', ->
       template = ->
         div id: 'block-1', class: 'block', ->
-          text 'content'
-      expecting "<div id=\"block-1\" class=\"block\">content</div>"
+          p 'content'
+      expecting "<div id=\"block-1\" class=\"block\"><p>content</p></div>"
 
     it 'renders html comments alone', ->
       template = ->
@@ -58,6 +58,12 @@ describe 'CoffeeTemplates', ->
         doctype(5);a();abbr();address();area();article();aside();audio();b();base();bdi();bdo();blockquote();body();br();button();canvas();caption();cite();code();col();colgroup();command();data();datagrid();datalist();dd();del();details();dfn();div();dl();dt();em();embed();eventsource();fieldset();figcaption();figure();footer();form();h1();h2();h3();h4();h5();h6();head();header();hgroup();hr();html();i();iframe();img();input();ins();kbd();keygen();label();legend();li();link();mark();map();menu();meta();meter();nav();noscript();object();ol();optgroup();option();output();p();param();pre();progress();q();ruby();rp();rt();s();samp();script();section();select();small();source();span();strong();style();sub();summary();sup();table();tbody();td();textarea();tfoot();th();thead();time();title();tr();track();u();ul();video();wbr()
         literal '<var></var>'
       expecting "<!doctype html><a></a><abbr></abbr><address></address><area/><article></article><aside></aside><audio></audio><b></b><base/><bdi></bdi><bdo></bdo><blockquote></blockquote><body></body><br/><button></button><canvas></canvas><caption></caption><cite></cite><code></code><col/><colgroup></colgroup><command></command><data></data><datagrid></datagrid><datalist></datalist><dd></dd><del></del><details></details><dfn></dfn><div></div><dl></dl><dt></dt><em></em><embed></embed><eventsource></eventsource><fieldset></fieldset><figcaption></figcaption><figure></figure><footer></footer><form></form><h1></h1><h2></h2><h3></h3><h4></h4><h5></h5><h6></h6><head></head><header></header><hgroup></hgroup><hr/><html></html><i></i><iframe></iframe><img/><input/><ins></ins><kbd></kbd><keygen></keygen><label></label><legend></legend><li></li><link/><mark></mark><map></map><menu></menu><meta/><meter></meter><nav></nav><noscript></noscript><object></object><ol></ol><optgroup></optgroup><option></option><output></output><p></p><param/><pre></pre><progress></progress><q></q><ruby></ruby><rp></rp><rt></rt><s></s><samp></samp><script></script><section></section><select></select><small></small><source></source><span></span><strong></strong><style></style><sub></sub><summary></summary><sup></sup><table></table><tbody></tbody><td></td><textarea></textarea><tfoot></tfoot><th></th><thead></thead><time></time><title></title><tr></tr><track></track><u></u><ul></ul><video></video><wbr></wbr><var></var>"
+
+    it 'renders plain text with text()', ->
+      template = ->
+        div ->
+          text 'hello'
+      expecting '<div>hello</div>'
 
     it 'can escape text and attributes', ->
       engine = new CoffeeTemplates escape: true
@@ -133,17 +139,18 @@ describe 'CoffeeTemplates', ->
         '''
       expecting "<style>body {font-family: sans-serif}\nheader, nav, section, footer {display: block}</style><script>alert('hello!');\nconsole.log('how are you');</script>"
 
-    it 'returns rendered output as string with render()'
-    #  template = ->
-    #    p "This text could use #{render -> a href: '/', 'a link'}."
+    it 'appends what tag functions return if it is a string', ->
+      template = ->
+        p ->
+          text 'hello.'
+          a href: '/', 'this is the hard way'
+          '.'
+      expecting '<p>hello.<a href="/">this is the hard way</a>.</p>'
 
-    it 'renders plain text'
-    #  template = ->
-    #    p ->
-    #      text 'hello'
-    #      strong 'this is the hard way'
-    #      '.'
-    #  expecting "<p>hello<strong>this is the hard way</strong>.</p>"
+    it 'returns rendered output as string with render()', ->
+      template = ->
+        p "hello.#{render -> a href: '/', 'this is the easy way'}."
+      expecting '<p>hello.<a href="/">this is the easy way</a>.</p>'
 
     it 'renders markup manually with literal', ->
       template = ->

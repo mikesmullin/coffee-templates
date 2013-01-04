@@ -35,6 +35,7 @@
     o=@o # options (without requirement of `this.` context)
     indent=((x)->->(new Array(l)).join x)(o.indent) # indentation function
     g=o.globals # globals abbreviated
+    g.render=(tf)=>@render tf, i
     g.tag=(a,b,c,d)->->
       # a # prefix
       # b # attributes array join function
@@ -75,7 +76,8 @@
         # cases where i can get away with this...
         t+=(->
           t = ''
-          h.call i
+          r=h.call i
+          if y(r) is 's' and r isnt t then t += r # allow tag functions to return a string and have it appended
           t = o.newline+t+indent() if t isnt ''
           t = indent()+a+f+c+t+d+o.newline
         )()

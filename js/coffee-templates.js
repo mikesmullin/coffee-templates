@@ -30,7 +30,8 @@
     this.o = o;
   };
   C.prototype.render = function(tf, i) {
-    var atts, g, indent, l, o, t, x;
+    var atts, g, indent, l, o, t, x,
+      _this = this;
     t = '';
     l = 0;
     o = this.o;
@@ -40,6 +41,9 @@
       };
     })(o.indent);
     g = o.globals;
+    g.render = function(tf) {
+      return _this.render(tf, i);
+    };
     g.tag = function(a, b, c, d) {
       return function() {
         var e, f, h, s, x;
@@ -72,8 +76,12 @@
         f = y(b) === 'f' ? b(f) : '';
         if (y(h) === 'f') {
           t += (function() {
+            var r;
             t = '';
-            h.call(i);
+            r = h.call(i);
+            if (y(r) === 's' && r !== t) {
+              t += r;
+            }
             if (t !== '') {
               t = o.newline + t + indent();
             }
