@@ -229,7 +229,7 @@ describe 'CoffeeTemplates', ->
         'A': 'Hi, {{name}}!'
         'B': 'Bye, {{name}}!'
       templates_fn = CoffeeTemplates.compileAll staches
-      assert.equal "function anonymous(n,g) {\nvar o=\"\";var c={},p=\"partial\",l=\"layout\",content_for=function(s,f){c[s]=f},yields=function(s){var b=c[s];b&&((c[s]=\"\")||b())},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){c[\"content\"]=function(){o+=y};o=\"\";g[p](n,g);}},__if=function(v,f){v&&v.length!==0&&f()},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};with(e){var w=function(f,a){o=\"\";f.apply({},a);return o},t={\n\"A\":function(){return \"Hi, \"+name},\n\"B\":function(){return \"Bye, \"+name},\n}};o+=t[n]();z(g)};g[p](n,g);z(g);return o\n}", templates_fn.toString()
+      assert.equal "function anonymous(n,g) {\nvar o=\"\";var c={},p=\"partial\",l=\"layout\",content_for=function(s,f){c[s]=f},yields=function(s){var b=c[s];b&&((c[s]=\"\")||b())},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){c[\"content\"]=function(){o+=y};o=\"\";g[p](n,g);}},__if=function(v,f){v&&v.length!==0&&f()},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};var q=g.l;g.l=[];with(e){var w=function(f,a){o=\"\";f.apply({},a);return o},t={\n\"A\":function(){return \"Hi, \"+name},\n\"B\":function(){return \"Bye, \"+name},\n}};o+=t[n]();z(g);g.l=q};g[p](n,g);z(g);return o\n}", templates_fn.toString()
 
     it 'can compile {{if logic}}{{/if}} blocks', ->
       templates =
@@ -362,6 +362,38 @@ describe 'CoffeeTemplates', ->
       for k of templates
         templates[k] = engine.render templates[k]
       templates_fn = CoffeeTemplates.compileAll templates
-      assert.equal "function anonymous(n,g) {\nvar o=\"\";var c={},p=\"partial\",l=\"layout\",content_for=function(s,f){c[s]=f},yields=function(s){var b=c[s];b&&((c[s]=\"\")||b())},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){c[\"content\"]=function(){o+=y};o=\"\";g[p](n,g);}},__if=function(v,f){v&&v.length!==0&&f()},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};with(e){var w=function(f,a){o=\"\";f.apply({},a);return o},t={\n\"views/A\":function(){return \"<div id=\\\"A\\\">hi\"+w(yields,[\"content\"])+w(layout,[\"views/B\"])+\"</div>\"},\n\"views/B\":function(){return \"<div id=\\\"B\\\">\"+w(yields,[\"content\"])+w(layout,[\"views/C\"])+\"</div>\"},\n\"views/C\":function(){return \"<div id=\\\"C\\\">\"+w(yields,[\"content\"])+\"</div>\"},\n\"layouts/html5\":function(){return \"<!doctype html><html><head><title>Test</title>\"+w(yields,[\"head\"])+\"</head><body>\"+w(yields,[\"content\"])+w(yields,[\"foot\"])+\"</body></html>\"},\n\"layouts/dashboard\":function(){return w(content_for,[\"head\",function(){o+=\"<link rel=\\\"stylesheet\\\" href=\\\"test.css\\\"/>\"}])+\"<div id=\\\"dashboard\\\">\"+w(yields,[\"content\"])+\"</div>\"+w(content_for,[\"foot\",function(){o+=\"<script src=\\\"test.js\\\"><\"+\"/script>\"}])+w(layout,[\"layouts/html5\"])},\n}};o+=t[n]();z(g)};g[p](n,g);z(g);return o\n}", templates_fn.toString()
+      assert.equal "function anonymous(n,g) {\nvar o=\"\";var c={},p=\"partial\",l=\"layout\",content_for=function(s,f){c[s]=f},yields=function(s){var b=c[s];b&&((c[s]=\"\")||b())},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){c[\"content\"]=function(){o+=y};o=\"\";g[p](n,g);}},__if=function(v,f){v&&v.length!==0&&f()},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};var q=g.l;g.l=[];with(e){var w=function(f,a){o=\"\";f.apply({},a);return o},t={\n\"views/A\":function(){return \"<div id=\\\"A\\\">hi\"+w(yields,[\"content\"])+w(layout,[\"views/B\"])+\"</div>\"},\n\"views/B\":function(){return \"<div id=\\\"B\\\">\"+w(yields,[\"content\"])+w(layout,[\"views/C\"])+\"</div>\"},\n\"views/C\":function(){return \"<div id=\\\"C\\\">\"+w(yields,[\"content\"])+\"</div>\"},\n\"layouts/html5\":function(){return \"<!doctype html><html><head><title>Test</title>\"+w(yields,[\"head\"])+\"</head><body>\"+w(yields,[\"content\"])+w(yields,[\"foot\"])+\"</body></html>\"},\n\"layouts/dashboard\":function(){return w(content_for,[\"head\",function(){o+=\"<link rel=\\\"stylesheet\\\" href=\\\"test.css\\\"/>\"}])+\"<div id=\\\"dashboard\\\">\"+w(yields,[\"content\"])+\"</div>\"+w(content_for,[\"foot\",function(){o+=\"<script src=\\\"test.js\\\"><\"+\"/script>\"}])+w(layout,[\"layouts/html5\"])},\n}};o+=t[n]();z(g);g.l=q};g[p](n,g);z(g);return o\n}", templates_fn.toString()
       out = templates_fn 'views/A', layout: 'layouts/dashboard'
       assert.equal "<!doctype html><html><head><title>Test</title><link rel=\"stylesheet\" href=\"test.css\"/></head><body><div id=\"dashboard\"><div id=\"C\"><div id=\"B\"><div id=\"A\">hi</div></div></div></div><script src=\"test.js\"></script></body></html>", out
+
+    it 'can get all crazy with recursive layouts and partials', ->
+      templates =
+        layout: engine.render ->
+          doctype 5
+          html ->
+            head ->
+              title 'test'
+              yields 'head'
+            body ->
+              yields 'content'
+              yields 'foot'
+        wrapper: engine.render ->
+          div '#wrapper', ->
+            yields 'content'
+        view: engine.render ->
+          content_for 'head', ->
+            coffeescript ->
+              alert 'hi'
+          content_for 'foot', ->
+            p 'page 1 of 2'
+          div ->
+            p 'hello world'
+            div ->
+              partial 'partial'
+          layout 'wrapper'
+        partial: engine.render ->
+          p 'goodbye world'
+          layout 'wrapper'
+      template_fn = CoffeeTemplates.compileAll templates
+      out = template_fn 'view', layout: 'layout'
+      assert.equal '''<!doctype html><html><head><title>test</title><script>return alert('hi');</script></head><body><div id="wrapper"><div><p>hello world</p><div><div id="wrapper"><p>goodbye world</p></div></div></div></div><p>page 1 of 2</p></body></html>''', out
