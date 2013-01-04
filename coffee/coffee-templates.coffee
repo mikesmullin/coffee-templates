@@ -119,17 +119,18 @@
     o = o or {}
     p = o.safe_namespace or '' # e.g., set to '__' if conflicts occur with template variables
     lvl = 1; toks = []; tokm = {}
-    t.replace `/\{\{([\/#]?[^ }]+)( [^}]+)?\}\}/g`, ->
+    t.replace `/\{\{([\/#]{0,2}[^ }]+)( [^}]+)?\}\}/g`, ->
       a = arguments; cf = a[1][0] is '/' # closing block/function
       tok =
         s: a[0] # matched string
         b: b = typeof a[2] is 'string' # block/function
         a: (b and a[2]) or '' # block/function arguments
         v: b is cf # variable
-        n: n = if b is cf then a[1] else if a[1][0] is '/' or a[1][0] is '#' then a[1].slice(1) else a[1] # name
+        n: if b is cf then a[1] else if a[1].substr(0,2) is '/#' then a[1].slice(2) else if a[1][0] is '/' or a[1][0] is '#' then a[1].slice(1) else a[1] # name
         l: l = (b is cf and lvl) or (b and lvl++) or (cf and --lvl) # level
         x: a[3] # x-coordinate character position
-      k=l+'.'+n
+      if tok.n is 'if' then tok.n = '__if'
+      k=l+'.'+tok.n
       return !!((l is 1) and
         (cf and toks[tokm[k]].o = tok) or
         ((tok.v or tok.b) and tokm[k] = toks.push(tok)-1) # map token keys to token array indicies
@@ -186,7 +187,7 @@
       a[k] = C.compile a[k], o, false
     f = 'var '+p+'o="";'
     unless o.omit_helpers
-      f += 'var '+p+'c={},'+p+'p="partial",'+p+'l="layout",content_for=function(s,f){'+p+'c[s]=f},yields=function(s){var b='+p+'c[s];b&&(('+p+'c[s]="")||b())},'+p+'z=function('+p+'g){var '+p+'y='+p+'o,'+p+'n;if('+p+'g&&'+p+'g.'+p+'l&&('+p+'n='+p+'g.'+p+'l.pop())){'+p+'c["content"]=function(){'+p+'o+='+p+'y};'+p+'o="";'+p+'g['+p+'p]('+p+'n,'+p+'g);}},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};'+p+'g='+p+'g||{};'+p+'g.'+p+'l=['+p+'g['+p+'l]];'+p+'g['+p+'l]=function(n){'+p+'g.'+p+'l.push(n)};'+p+'g['+p+'p]=function('+p+'n,'+p+'e){'+p+'e='+p+'e||{};for(var '+p+'k in '+p+'g){'+p+'e['+p+'k]='+p+'e['+p+'k]||'+p+'g['+p+'k]};with('+p+'e){'
+      f += 'var '+p+'c={},'+p+'p="partial",'+p+'l="layout",content_for=function(s,f){'+p+'c[s]=f},yields=function(s){var b='+p+'c[s];b&&(('+p+'c[s]="")||b())},'+p+'z=function('+p+'g){var '+p+'y='+p+'o,'+p+'n;if('+p+'g&&'+p+'g.'+p+'l&&('+p+'n='+p+'g.'+p+'l.pop())){'+p+'c["content"]=function(){'+p+'o+='+p+'y};'+p+'o="";'+p+'g['+p+'p]('+p+'n,'+p+'g);}},__if=function(v,f){v&&v.length!==0&&f()},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};'+p+'g='+p+'g||{};'+p+'g.'+p+'l=['+p+'g['+p+'l]];'+p+'g['+p+'l]=function(n){'+p+'g.'+p+'l.push(n)};'+p+'g['+p+'p]=function('+p+'n,'+p+'e){'+p+'e='+p+'e||{};for(var '+p+'k in '+p+'g){'+p+'e['+p+'k]='+p+'e['+p+'k]||'+p+'g['+p+'k]};with('+p+'e){'
     else
       f += 'with('+p+'g){'
     f += 'var '+p+'w=function(f,a){'+p+'o="";f.apply({},a);return '+p+'o},'+p+'t={\n'

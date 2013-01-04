@@ -219,7 +219,7 @@ describe 'CoffeeTemplates', ->
     it "templates_fn() won't error when called without options", ->
       templates =
         'test': 'hello'
-      templates = eval CoffeeTemplates.compileAll templates
+      templates = CoffeeTemplates.compileAll templates
       out = templates 'test'
       expecting 'hello'
 
@@ -229,7 +229,33 @@ describe 'CoffeeTemplates', ->
         'A': 'Hi, {{name}}!'
         'B': 'Bye, {{name}}!'
       templates_fn = CoffeeTemplates.compileAll staches
-      assert.equal "function anonymous(n,g) {\nvar o=\"\";var c={},p=\"partial\",l=\"layout\",content_for=function(s,f){c[s]=f},yields=function(s){var b=c[s];b&&((c[s]=\"\")||b())},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){c[\"content\"]=function(){o+=y};o=\"\";g[p](n,g);}},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};with(e){var w=function(f,a){o=\"\";f.apply({},a);return o},t={\n\"A\":function(){return \"Hi, \"+name},\n\"B\":function(){return \"Bye, \"+name},\n}};o+=t[n]();z(g)};g[p](n,g);z(g);return o\n}", templates_fn.toString()
+      assert.equal "function anonymous(n,g) {\nvar o=\"\";var c={},p=\"partial\",l=\"layout\",content_for=function(s,f){c[s]=f},yields=function(s){var b=c[s];b&&((c[s]=\"\")||b())},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){c[\"content\"]=function(){o+=y};o=\"\";g[p](n,g);}},__if=function(v,f){v&&v.length!==0&&f()},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};with(e){var w=function(f,a){o=\"\";f.apply({},a);return o},t={\n\"A\":function(){return \"Hi, \"+name},\n\"B\":function(){return \"Bye, \"+name},\n}};o+=t[n]();z(g)};g[p](n,g);z(g);return o\n}", templates_fn.toString()
+
+    it 'can compile {{if logic}}{{/if}} blocks', ->
+      templates =
+        'A': engine.render ->
+          p 'the variable is'
+          block 'if v', ->
+            p '{{v}}'
+      templates_fn = CoffeeTemplates.compileAll templates
+      out = templates_fn 'A', v: true
+      assert.equal "<p>the variable is</p><p>true</p>", out
+      templates =
+        'A': engine.render ->
+          p 'the variable is'
+          block 'if !v', ->
+            p '{{v}}'
+      templates_fn = CoffeeTemplates.compileAll templates
+      out = templates_fn 'A', v: false
+      assert.equal "<p>the variable is</p><p>false</p>", out
+      templates =
+        'A': engine.render ->
+          p 'the variable is'
+          block '#if typeof v==="undefined"', ->
+            p 'not defined'
+      templates_fn = CoffeeTemplates.compileAll templates
+      out = templates_fn 'A'
+      assert.equal "<p>the variable is</p><p>not defined</p>", out
 
     it 'can compile including other templates using partial()', ->
       templates =
@@ -246,7 +272,7 @@ describe 'CoffeeTemplates', ->
           '''
         'E': 'but avoid creating circular dependencies :)'
       assert.deepEqual {"A":"<p>Its fun to</p>{{partial \"B\"}}{{/partial}}","B":"<p>use partials to</p>{{partial \"C\"}}{{/partial}}","C":"<p>include reusable bits from</p>{{partial \"D\"}}{{/partial}}","D":"<p>other templates</p>\n{{partial \"E\"}}{{/partial}}","E":"but avoid creating circular dependencies :)"}, templates
-      templates_fn = eval CoffeeTemplates.compileAll templates
+      templates_fn = CoffeeTemplates.compileAll templates
       out = templates_fn 'A'
       assert.equal '<p>Its fun to</p><p>use partials to</p><p>include reusable bits from</p><p>other templates</p>\nbut avoid creating circular dependencies :)', out
 
@@ -274,7 +300,7 @@ describe 'CoffeeTemplates', ->
           </footer>
           '''
       assert.deepEqual {"throwerCoffee":"{{content_for \"head\"}}<script>alert(\"the coffee versions of content_for(), yields(), partial(), etc. only compile to stache versions\");</script>{{/content_for}}<!--because its better to perform those tasks at the last minute and at the NoEngine function level, anyway.-->","throwerStache":"<p>It's nice.</p>{{content_for \"foot\"}}<script>alert(\"yep\");</script>{{/content_for}}","catcherCoffee":"<html>{{partial \"throwerCoffee\"}}{{/partial}}<head><meta charset=\"utf-8\"/>{{yields \"head\"}}{{/yields}}</head><body>{{partial \"throwerStache\"}}{{/partial}}{{partial \"catcherStache\"}}{{/partial}}</body></html>","catcherStache":"<footer>\n  {{yields \"foot\"}}{{/yields}}\n</footer>"}, templates
-      templates = eval CoffeeTemplates.compileAll templates
+      templates = CoffeeTemplates.compileAll templates
       out = templates 'catcherCoffee'
       assert.equal "<html><!--because its better to perform those tasks at the last minute and at the NoEngine function level, anyway.--><head><meta charset=\"utf-8\"/><script>alert(\"the coffee versions of content_for(), yields(), partial(), etc. only compile to stache versions\");</script></head><body><p>It's nice.</p><footer>\n  <script>alert(\"yep\");</script>\n</footer></body></html>", out
 
@@ -286,7 +312,7 @@ describe 'CoffeeTemplates', ->
           div '#wrapper', ->
             yields 'content'
           p 'Goodbye'
-      templates = eval CoffeeTemplates.compileAll templates
+      templates = CoffeeTemplates.compileAll templates
       out = templates 'A', layout: 'B'
       assert.equal "<div id=\"wrapper\"><p id=\"content\">Hello</p></div><p>Goodbye</p>", out
 
@@ -299,7 +325,7 @@ describe 'CoffeeTemplates', ->
           div '#wrapper', ->
             yields 'content'
           p 'Goodbye'
-      templates = eval CoffeeTemplates.compileAll templates # defines templates variable
+      templates = CoffeeTemplates.compileAll templates # defines templates variable
       out = templates 'A'
       assert.equal "<div id=\"wrapper\"><p id=\"content\">Hello</p></div><p>Goodbye</p>", out
 
@@ -335,7 +361,7 @@ describe 'CoffeeTemplates', ->
           layout 'layouts/html5'
       for k of templates
         templates[k] = engine.render templates[k]
-      templates_fn = eval CoffeeTemplates.compileAll templates
-      assert.equal "function anonymous(n,g) {\nvar o=\"\";var c={},p=\"partial\",l=\"layout\",content_for=function(s,f){c[s]=f},yields=function(s){var b=c[s];b&&((c[s]=\"\")||b())},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){c[\"content\"]=function(){o+=y};o=\"\";g[p](n,g);}},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};with(e){var w=function(f,a){o=\"\";f.apply({},a);return o},t={\n\"views/A\":function(){return \"<div id=\\\"A\\\">hi\"+w(yields,[\"content\"])+w(layout,[\"views/B\"])+\"</div>\"},\n\"views/B\":function(){return \"<div id=\\\"B\\\">\"+w(yields,[\"content\"])+w(layout,[\"views/C\"])+\"</div>\"},\n\"views/C\":function(){return \"<div id=\\\"C\\\">\"+w(yields,[\"content\"])+\"</div>\"},\n\"layouts/html5\":function(){return \"<!doctype html><html><head><title>Test</title>\"+w(yields,[\"head\"])+\"</head><body>\"+w(yields,[\"content\"])+w(yields,[\"foot\"])+\"</body></html>\"},\n\"layouts/dashboard\":function(){return w(content_for,[\"head\",function(){o+=\"<link rel=\\\"stylesheet\\\" href=\\\"test.css\\\"/>\"}])+\"<div id=\\\"dashboard\\\">\"+w(yields,[\"content\"])+\"</div>\"+w(content_for,[\"foot\",function(){o+=\"<script src=\\\"test.js\\\"><\"+\"/script>\"}])+w(layout,[\"layouts/html5\"])},\n}};o+=t[n]();z(g)};g[p](n,g);z(g);return o\n}", templates_fn.toString()
+      templates_fn = CoffeeTemplates.compileAll templates
+      assert.equal "function anonymous(n,g) {\nvar o=\"\";var c={},p=\"partial\",l=\"layout\",content_for=function(s,f){c[s]=f},yields=function(s){var b=c[s];b&&((c[s]=\"\")||b())},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){c[\"content\"]=function(){o+=y};o=\"\";g[p](n,g);}},__if=function(v,f){v&&v.length!==0&&f()},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};with(e){var w=function(f,a){o=\"\";f.apply({},a);return o},t={\n\"views/A\":function(){return \"<div id=\\\"A\\\">hi\"+w(yields,[\"content\"])+w(layout,[\"views/B\"])+\"</div>\"},\n\"views/B\":function(){return \"<div id=\\\"B\\\">\"+w(yields,[\"content\"])+w(layout,[\"views/C\"])+\"</div>\"},\n\"views/C\":function(){return \"<div id=\\\"C\\\">\"+w(yields,[\"content\"])+\"</div>\"},\n\"layouts/html5\":function(){return \"<!doctype html><html><head><title>Test</title>\"+w(yields,[\"head\"])+\"</head><body>\"+w(yields,[\"content\"])+w(yields,[\"foot\"])+\"</body></html>\"},\n\"layouts/dashboard\":function(){return w(content_for,[\"head\",function(){o+=\"<link rel=\\\"stylesheet\\\" href=\\\"test.css\\\"/>\"}])+\"<div id=\\\"dashboard\\\">\"+w(yields,[\"content\"])+\"</div>\"+w(content_for,[\"foot\",function(){o+=\"<script src=\\\"test.js\\\"><\"+\"/script>\"}])+w(layout,[\"layouts/html5\"])},\n}};o+=t[n]();z(g)};g[p](n,g);z(g);return o\n}", templates_fn.toString()
       out = templates_fn 'views/A', layout: 'layouts/dashboard'
       assert.equal "<!doctype html><html><head><title>Test</title><link rel=\"stylesheet\" href=\"test.css\"/></head><body><div id=\"dashboard\"><div id=\"C\"><div id=\"B\"><div id=\"A\">hi</div></div></div></div><script src=\"test.js\"></script></body></html>", out
