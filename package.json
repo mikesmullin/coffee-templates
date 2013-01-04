@@ -1,6 +1,6 @@
 {
   "name": "coffee-templates",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Fastest Minimalist CoffeeScript/JavaScript CoffeeCup/Handlebars/Mustache template engine.",
   "main": "js/coffee-templates.js",
   "directories": {
