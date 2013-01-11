@@ -1,7 +1,7 @@
 # Why CoffeeTemplates?
 
  * 89% smaller download than [CoffeeCup](https://github.com/gradus/coffeecup) + [Handlebars](http://handlebarsjs.com/)--but compiles BOTH with just [257 lines](https://github.com/mikesmullin/coffee-templates/blob/stable/js/coffee-templates.js).
- * thats just [8.6KB](https://raw.github.com/mikesmullin/coffee-templates/stable/js/coffee-templates.js), [5.5KB minified](https://raw.github.com/mikesmullin/coffee-templates/stable/js/coffee-templates.min.js), and [2.6KB gzipped](https://raw.github.com/mikesmullin/coffee-templates/stable/js/coffee-templates.min.js.gz)
+ * thats just [8.7KB](https://raw.github.com/mikesmullin/coffee-templates/stable/js/coffee-templates.js), [5.5KB minified](https://raw.github.com/mikesmullin/coffee-templates/stable/js/coffee-templates.min.js), and [2.6KB gzipped](https://raw.github.com/mikesmullin/coffee-templates/stable/js/coffee-templates.min.js.gz)
  * renders between [22%](http://jsperf.com/coffeecup-vs-coffee-templates) to [80% faster](http://jsperf.com/handlebars-vs-coffee-templates) as tested on node/chrome/v8
  * stand-alone client-side in browser or server-side with Node.js with NO [dependencies](https://github.com/mikesmullin/coffee-templates/blob/stable/package.json)
  * compiling to .js yields one-function-per-template which renders using ONLY string concatenation--the secret to its speed

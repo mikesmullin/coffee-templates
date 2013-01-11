@@ -122,7 +122,7 @@
       a = arguments; cf = a[1][0] is '/' # closing block/function
       tok =
         s: a[0] # matched string
-        b: b = typeof a[2] is 'string' # block/function
+        b: b = (typeof a[2] is 'string' and a[2] isnt '') # block/function
         a: (b and a[2]) or '' # block/function arguments
         v: b is cf # variable
         n: if b is cf then a[1] else if a[1].substr(0,2) is '/#' then a[1].slice(2) else if a[1][0] is '/' or a[1][0] is '#' then a[1].slice(1) else a[1] # name

@@ -166,7 +166,7 @@
       cf = a[1][0] === '/';
       tok = {
         s: a[0],
-        b: b = typeof a[2] === 'string',
+        b: b = typeof a[2] === 'string' && a[2] !== '',
         a: (b && a[2]) || '',
         v: b === cf,
         n: b === cf ? a[1] : a[1].substr(0, 2) === '/#' ? a[1].slice(2) : a[1][0] === '/' || a[1][0] === '#' ? a[1].slice(1) : a[1],
