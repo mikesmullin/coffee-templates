@@ -93,7 +93,7 @@
     g.h = (s) -> (''+s).replace /[&<>"']/g, (c) -> o.special[c] or c # escape special characters
     g.text = (s) -> t += if o.escape then g.h(s) else s
     g.literal = (s) -> t += s
-    g.coffeescript = (f) -> g.script (''+f).replace(/^function \(\) ?\{\s*/,'').replace(/\s*\}$/,'')
+    g.coffeescript = (f) -> g.script (''+f).replace(/^function \(\) ?\{\s*(return\s*)?/,'').replace(/\s*\}$/,'')
     g.doctype = (v) -> t = o.doctype[v or 5] + o.newline + t
     g.comment = (s,f) -> g.tag('<!--'+s, null, '', '-->')(f)
     g.ie = (s,f) -> g.tag('<!--[if '+s+']>', null, '', '<![endif]-->')(f)

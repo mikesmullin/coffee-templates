@@ -111,7 +111,7 @@
       return t += s;
     };
     g.coffeescript = function(f) {
-      return g.script(('' + f).replace(/^function \(\) ?\{\s*/, '').replace(/\s*\}$/, ''));
+      return g.script(('' + f).replace(/^function \(\) ?\{\s*(return\s*)?/, '').replace(/\s*\}$/, ''));
     };
     g.doctype = function(v) {
       return t = o.doctype[v || 5] + o.newline + t;

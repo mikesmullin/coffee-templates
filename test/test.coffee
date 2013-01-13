@@ -187,7 +187,7 @@ describe 'CoffeeTemplates', ->
         coffeescript ->
           jQuery ->
             alert 'Alerts suck!'
-      expecting "<script>return jQuery(function() {\n              return alert('Alerts suck!');\n            });</script>"
+      expecting "<script>jQuery(function() {\n              return alert('Alerts suck!');\n            });</script>"
 
     it 'can compile coffeestylesheet ->'
 
@@ -396,4 +396,4 @@ describe 'CoffeeTemplates', ->
           layout 'wrapper'
       template_fn = CoffeeTemplates.compileAll templates
       out = template_fn 'view', layout: 'layout'
-      assert.equal '''<!doctype html><html><head><title>test</title><script>return alert('hi');</script></head><body><div id="wrapper"><div><p>hello world</p><div><div id="wrapper"><p>goodbye world</p></div></div></div></div><p>page 1 of 2</p></body></html>''', out
+      assert.equal '''<!doctype html><html><head><title>test</title><script>alert('hi');</script></head><body><div id="wrapper"><div><p>hello world</p><div><div id="wrapper"><p>goodbye world</p></div></div></div></div><p>page 1 of 2</p></body></html>''', out
