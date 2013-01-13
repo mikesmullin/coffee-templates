@@ -34,9 +34,9 @@
     l=0  # indentation level
     o=@o # options (without requirement of `this.` context)
     indent=((x)->->(new Array(l)).join x)(o.indent) # indentation function
-    g=o.globals # globals abbreviated
+    g={}
     g.render=(tf)=>@render tf, i
-    g.tag=(a,b,c,d)->->
+    g.tag_fn=(a,b,c,d)->->
       # a # prefix
       # b # attributes array join function
       # c # after attributes
@@ -88,15 +88,15 @@
       if typeof f is 'undefined' # if no function provided, return string only (e.g. for inline use in arguments)
         return '{{'+(if o.handlebars then '#' else '')+s+', (s)}}{{s}}{{/'+s.split(`/ +/`)[0]+'}}'
       # otherwise, append to template and return nothing
-      g.tag('{{'+(if o.handlebars then '#' else '')+s, null, '}}', '{{/'+(s.split(`/ +/`)[0])+'}}')(f)
+      g.tag_fn('{{'+(if o.handlebars then '#' else '')+s, null, '}}', '{{/'+(s.split(`/ +/`)[0])+'}}')(f)
       return
     g.h = (s) -> (''+s).replace /[&<>"']/g, (c) -> o.special[c] or c # escape special characters
     g.text = (s) -> t += if o.escape then g.h(s) else s
     g.literal = (s) -> t += s
     g.coffeescript = (f) -> g.script (''+f).replace(/^function \(\) ?\{\s*(return\s*)?/,'').replace(/\s*\}$/,'')
     g.doctype = (v) -> t = o.doctype[v or 5] + o.newline + t
-    g.comment = (s,f) -> g.tag('<!--'+s, null, '', '-->')(f)
-    g.ie = (s,f) -> g.tag('<!--[if '+s+']>', null, '', '<![endif]-->')(f)
+    g.comment = (s,f) -> g.tag_fn('<!--'+s, null, '', '-->')(f)
+    g.ie = (s,f) -> g.tag_fn('<!--[if '+s+']>', null, '', '<![endif]-->')(f)
     g.content_for = (s,f) -> g.block 'content_for '+JSON.stringify(s), f
     g.yields = (s) -> g.block 'yields '+JSON.stringify(s), ->
     g.partial = (s, args) -> g.block 'partial '+JSON.stringify(s)+(if args then ', '+args else ''), ->
@@ -106,10 +106,14 @@
       for k of a
         z += if y(a[k]) isnt 'b' then ' '+k+'="'+(if o.escape then g.h(a[k]) else a[k])+'"' else if a[k] then ' ' + k else ''
       return z
+    g.tag = (s) -> g.tag_fn '<'+s, atts, '>', '</'+s+'>'
+    g.atomic = (s) -> g.tag_fn '<'+s, atts, '/>', ''
     for x of o.tags
-      g[o.tags[x]] = g.tag '<'+o.tags[x], atts, '>', '</'+o.tags[x]+'>'
+      g[o.tags[x]] = g.tag o.tags[x]
     for x of o.atags
-      g[o.atags[x]] = g.tag '<'+o.atags[x], atts, '/>', ''
+      g[o.atags[x]] = g.atomic o.atags[x]
+    for k of o.globals
+      g[k] = o.globals[k]
     (Function 'g', '_i', 'with(g){('+tf+').call(_i)}')(g, i)
     return t
 

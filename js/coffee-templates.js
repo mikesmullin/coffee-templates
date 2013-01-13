@@ -30,7 +30,7 @@
     this.o = o;
   };
   C.prototype.render = function(tf, i) {
-    var atts, g, indent, l, o, t, x,
+    var atts, g, indent, k, l, o, t, x,
       _this = this;
     t = '';
     l = 0;
@@ -40,11 +40,11 @@
         return (new Array(l)).join(x);
       };
     })(o.indent);
-    g = o.globals;
+    g = {};
     g.render = function(tf) {
       return _this.render(tf, i);
     };
-    g.tag = function(a, b, c, d) {
+    g.tag_fn = function(a, b, c, d) {
       return function() {
         var e, f, h, s, x;
         e = arguments;
@@ -97,7 +97,7 @@
       if (typeof f === 'undefined') {
         return '{{' + (o.handlebars ? '#' : '') + s + ', (s)}}{{s}}{{/' + s.split(/ +/)[0] + '}}';
       }
-      g.tag('{{' + (o.handlebars ? '#' : '') + s, null, '}}', '{{/' + (s.split(/ +/)[0]) + '}}')(f);
+      g.tag_fn('{{' + (o.handlebars ? '#' : '') + s, null, '}}', '{{/' + (s.split(/ +/)[0]) + '}}')(f);
     };
     g.h = function(s) {
       return ('' + s).replace(/[&<>"']/g, function(c) {
@@ -117,10 +117,10 @@
       return t = o.doctype[v || 5] + o.newline + t;
     };
     g.comment = function(s, f) {
-      return g.tag('<!--' + s, null, '', '-->')(f);
+      return g.tag_fn('<!--' + s, null, '', '-->')(f);
     };
     g.ie = function(s, f) {
-      return g.tag('<!--[if ' + s + ']>', null, '', '<![endif]-->')(f);
+      return g.tag_fn('<!--[if ' + s + ']>', null, '', '<![endif]-->')(f);
     };
     g.content_for = function(s, f) {
       return g.block('content_for ' + JSON.stringify(s), f);
@@ -142,11 +142,20 @@
       }
       return z;
     };
+    g.tag = function(s) {
+      return g.tag_fn('<' + s, atts, '>', '</' + s + '>');
+    };
+    g.atomic = function(s) {
+      return g.tag_fn('<' + s, atts, '/>', '');
+    };
     for (x in o.tags) {
-      g[o.tags[x]] = g.tag('<' + o.tags[x], atts, '>', '</' + o.tags[x] + '>');
+      g[o.tags[x]] = g.tag(o.tags[x]);
     }
     for (x in o.atags) {
-      g[o.atags[x]] = g.tag('<' + o.atags[x], atts, '/>', '');
+      g[o.atags[x]] = g.atomic(o.atags[x]);
+    }
+    for (k in o.globals) {
+      g[k] = o.globals[k];
     }
     (Function('g', '_i', 'with(g){(' + tf + ').call(_i)}'))(g, i);
     return t;
