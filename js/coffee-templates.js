@@ -238,7 +238,7 @@
     }
     f = 'var o="";';
     if (!o.omit_helpers) {
-      f += 'var c={},p="partial",l="layout",content_for=function(s,f){c[s]=f},yields=function(s){var b=c[s];b&&((c[s]="")||b())},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){c["content"]=function(){o+=y};o="";g[p](n,g);}},__if=function(v,f){v&&v.length!==0&&f()},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};var q=g.l;g.l=[];with(e){';
+      f += 'var c={},p="partial",l="layout",content_for=function(s,f){c[s]=c[s]||[];c[s].push(f)},yields=function(s){while(c[s]&&c[s].length)c[s].pop()()},z=function(g){var y=o,n;if(g&&g.l&&(n=g.l.pop())){content_for("content",function(){o+=y});o="";g[p](n,g);}},__if=function(v,f){v&&v.length!==0&&f()},each=function(o,f){for (var k in o)o.hasOwnProperty(k)&&f.apply(o[k],[k,o[k]])};g=g||{};g.l=[g[l]];g[l]=function(n){g.l.push(n)};g[p]=function(n,e){e=e||{};for(var k in g){e[k]=e[k]||g[k]};var q=g.l;g.l=[];with(e){';
     } else {
       f += 'with(g){';
     }
